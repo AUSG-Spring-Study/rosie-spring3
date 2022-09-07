@@ -2,15 +2,20 @@ package springbook.user.dao;
 
 import springbook.user.domain.User;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-public abstract class UserDao {
-    private SimpleConnectionMaker simpleConnectionMaker;
-    public UserDao() {
-        simpleConnectionMaker = new SimpleConnectionMaker();
+public class UserDao {
+    private ConnectionMaker connectionMaker; // 인터페이스를 통해 오브젝트에 접근. 클래스 정보 알 필요 없다.
+
+    public UserDao(ConnectionMaker connectionMaker) {
+        this.connectionMaker = connectionMaker;
     }
+
     public void add(User user) throws ClassNotFoundException, SQLException {
-        Connection c = simpleConnectionMaker.getConnection();
+        Connection c = connectionMaker.makeConnection(); // 인터페이스에 정의된 메서드를 사용하므로 클래스가 바뀌어도 이 코드는 바뀌지 않음.
         PreparedStatement ps = c.prepareStatement("insert into users(id, name, password) values (?, ?, ?)");
         ps.setString(1, user.getId());
         ps.setString(2, user.getName());
@@ -23,7 +28,7 @@ public abstract class UserDao {
     }
 
     public User get(String id) throws ClassNotFoundException, SQLException {
-        Connection c = simpleConnectionMaker.getConnection();
+        Connection c = connectionMaker.makeConnection();
         PreparedStatement ps = c.prepareStatement("select * from users where id = ?");
         ps.setString(1, id);
 
