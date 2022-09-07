@@ -7,10 +7,10 @@ import java.sql.*;
 public class UserDao {
     public void add(User user) throws ClassNotFoundException, SQLException {
         /*
-        * Loading class `com.mysql.jdbc.Driver'.
-        * This is deprecated.
-        * The new driver class is `com.mysql.cj.jdbc.Driver'.
-        * The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
+         * Loading class `com.mysql.jdbc.Driver'.
+         * This is deprecated.
+         * The new driver class is `com.mysql.cj.jdbc.Driver'.
+         * The driver is automatically registered via the SPI and manual loading of the driver class is generally unnecessary.
          */
         Connection c = DriverManager.getConnection("jdbc:mysql://localhost/springbook", "root", "rkdudmysql4_");
         PreparedStatement ps = c.prepareStatement("insert into users(id, name, password) values (?, ?, ?)");
@@ -25,7 +25,7 @@ public class UserDao {
     }
 
     public User get(String id) throws ClassNotFoundException, SQLException {
-        Connection c =  DriverManager.getConnection("jdbc:mysql://localhost/springbook", "root", "rkdudmysql4_");
+        Connection c = DriverManager.getConnection("jdbc:mysql://localhost/springbook", "root", "rkdudmysql4_");
         PreparedStatement ps = c.prepareStatement("select * from users where id = ?");
         ps.setString(1, id);
 
@@ -43,7 +43,7 @@ public class UserDao {
         return user;
     }
 
-    public static void main(String[] args) throws ClassNotFoundException, SQLException  {
+    public static void main(String[] args) throws ClassNotFoundException, SQLException {
         UserDao dao = new UserDao();
 
         User user = new User();
@@ -52,7 +52,11 @@ public class UserDao {
         user.setPassword("hellohello");
 
         dao.add(user);
-
         System.out.println(user.getId() +" 등록성공");
+
+        User user2 = dao.get("rosie");
+        System.out.println(user2.getId() + " 조회 성공");
+        System.out.println("Name:" + user2.getName());
+        System.out.println("Password: " + user2.getPassword());
     }
 }
