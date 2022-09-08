@@ -1,7 +1,12 @@
 package springbook.user.dao;
 
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
 public class DaoFactory {
-    public UserDao userDao() {
+    @Bean
+    public UserDao userDao() { // 메서드의 이름이 빈의 이름이 된다.
         return new UserDao(connectionMaker());
     }
 
@@ -19,6 +24,7 @@ public class DaoFactory {
     *
      */
 
+    @Bean
     public ConnectionMaker connectionMaker() {
         return new DConnectionMaker();
     }
