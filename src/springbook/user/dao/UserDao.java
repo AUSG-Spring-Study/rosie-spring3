@@ -15,6 +15,10 @@ public class UserDao {
         this.connectionMaker = connectionMaker;
     }
 
+    public void setConnectionMaker(ConnectionMaker connectionMaker) {
+        this.connectionMaker = connectionMaker;
+    }
+
     public UserDao() { // 의존관계 검색을 이용하는 생성자
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(DaoFactory.class);
         this.connectionMaker = context.getBean("connectionMaker", ConnectionMaker.class);
@@ -51,4 +55,5 @@ public class UserDao {
 
         return user;
     }
+
 }
