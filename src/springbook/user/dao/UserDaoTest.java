@@ -2,37 +2,24 @@ package springbook.user.dao;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import springbook.user.domain.User;
 
-import javax.sql.DataSource;
 import java.sql.SQLException;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "/test-applicationContext.xml")
-@DirtiesContext
 public class UserDaoTest {
-
-    @Autowired
-    private ApplicationContext context;
-
-    @Autowired
     private UserDao dao;
     private User user1;
     private User user2;
 
     @Before
     public void setUp() {
+        dao = new UserDao();
+        dao.setDataSource(new SingleConnectionDataSource("jdbc:mysql://localhost/testdb", "root", "rkdudmysql4_", true));
         this.user1 = new User("ididid", "운가용", "sleep");
         this.user2 = new User("IDID99", "로지지징", "gohome");
     }
@@ -55,7 +42,6 @@ public class UserDaoTest {
 
     @Test
     public void count() throws SQLException, ClassNotFoundException {
-        UserDao dao = context.getBean("userDao", UserDao.class);
         User user1 = new User("1111", "홍홍홍", "hongzzi");
         User user2 = new User("2222", "vivian", "vivivivivi");
         User user3 = new User("33333", "matcha", "jmt");
