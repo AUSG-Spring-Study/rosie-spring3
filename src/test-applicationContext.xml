@@ -8,7 +8,8 @@
         <property name="driverClass" value="com.mysql.cj.jdbc.Driver"/>
         <!--driverClass의 value를 자동으로 Driver 오브젝트로 변경해준다.-->
 
-        <property name="url" value="jdbc:mysql://localhost:3306/springbook"/>
+        <!--xml 자체를 바꿔서 사용할 수도 있겠다. 적용하려면 @ContextConfiguration 을 이 파일로 바꾸면 됨-->
+        <property name="url" value="jdbc:mysql://localhost:3306/testdb"/>
         <property name="username" value="root"/>
         <property name="password" value="rkdudmysql4_"/>
     </bean>

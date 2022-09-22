@@ -1,24 +1,70 @@
 package springbook.user.dao;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.support.GenericXmlApplicationContext;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import springbook.user.domain.User;
 
 import java.sql.SQLException;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
 public class UserDaoTest {
-    public static void main(String[] args) throws ClassNotFoundException, SQLException {
-//        ApplicationContext context = new AnnotationConfigApplicationContext(DaoFactory.class);
-        ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
-        UserDao dao = context.getBean("userDao", UserDao.class); // 인자: 빈의 이름, 클래스
+    private UserDao dao;
+    private User user1;
+    private User user2;
 
-        /* 만약 클래스를 다르게 생성해서 빈으로 적용하는 메서드가 있다면 이렇게 할 수 있겠지
-        @Configuration은 specialUserDao라는 메서드를 갖게 한다
-        UserDao dao = context.getBean("specialUserDao", UserDao.class);
-        * */
+    @Before
+    public void setUp() {
+        dao = new UserDao();
+        dao.setDataSource(new SingleConnectionDataSource("jdbc:mysql://localhost/testdb", "root", "rkdudmysql4_", true));
+        this.user1 = new User("ididid", "운가용", "sleep");
+        this.user2 = new User("IDID99", "로지지징", "gohome");
+    }
 
-        User user = dao.get("rosie");
-        System.out.println(user.getId() + " 조회 성공"); // rosie 조회 성공
+    @Test // Junit에게 테스트용 메소드임을 알려준다.
+    public void addAndGet() throws SQLException, ClassNotFoundException { // JUnit 테스트 메소드는 반드시 public으로 선언돼야한다.
+        dao.deleteAll();
+        assertThat(dao.getCount(), is(0));
+        dao.add(user1);
+        dao.add(user2);
+
+        User userget1 = dao.get(user1.getId());
+        assertThat(userget1.getName(), is(user1.getName()));
+        assertThat(userget1.getPassword(), is(user1.getPassword()));
+
+        User userget2 = dao.get(user2.getId());
+        assertThat(userget2.getName(), is(user2.getName()));
+        assertThat(userget2.getPassword(), is(user2.getPassword()));
+    }
+
+    @Test
+    public void count() throws SQLException, ClassNotFoundException {
+        User user1 = new User("1111", "홍홍홍", "hongzzi");
+        User user2 = new User("2222", "vivian", "vivivivivi");
+        User user3 = new User("33333", "matcha", "jmt");
+
+        dao.deleteAll();
+
+        assertThat(dao.getCount(), is(0));
+
+        dao.add(user1);
+        assertThat(dao.getCount(), is(1));
+
+        dao.add(user2);
+        assertThat(dao.getCount(), is(2));
+
+        dao.add(user3);
+        assertThat(dao.getCount(), is(3));
+    }
+
+    @Test(expected = EmptyResultDataAccessException.class)
+    public void getUserFailure() throws SQLException, ClassNotFoundException {
+        dao.deleteAll();
+        assertThat(dao.getCount(), is(0));
+
+        dao.get("unknown_id");
     }
 }
