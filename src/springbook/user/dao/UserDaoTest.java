@@ -19,7 +19,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "/applicationContext.xml")
+@ContextConfiguration(locations = "/test-applicationContext.xml")
 @DirtiesContext
 public class UserDaoTest {
 
@@ -35,9 +35,6 @@ public class UserDaoTest {
     public void setUp() {
         this.user1 = new User("ididid", "운가용", "sleep");
         this.user2 = new User("IDID99", "로지지징", "gohome");
-
-        DataSource dataSource = new SingleConnectionDataSource("jdbc:mysql://localhost/testdb", "root", "rkdudmysql4_", true);
-        dao.setDataSource(dataSource);
     }
 
     @Test // Junit에게 테스트용 메소드임을 알려준다.

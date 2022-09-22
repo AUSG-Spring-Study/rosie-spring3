@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+               http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+
+        <property name="driverClass" value="com.mysql.cj.jdbc.Driver"/>
+        <!--driverClass의 value를 자동으로 Driver 오브젝트로 변경해준다.-->
+
+        <!--xml 자체를 바꿔서 사용할 수도 있겠다. 적용하려면 @ContextConfiguration 을 이 파일로 바꾸면 됨-->
+        <property name="url" value="jdbc:mysql://localhost:3306/testdb"/>
+        <property name="username" value="root"/>
+        <property name="password" value="rkdudmysql4_"/>
+    </bean>
+    <bean id="userDao" class="springbook.user.dao.UserDao">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+</beans>
