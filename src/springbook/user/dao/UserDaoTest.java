@@ -2,9 +2,12 @@ package springbook.user.dao;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import springbook.user.domain.User;
 
 import java.sql.SQLException;
@@ -12,15 +15,22 @@ import java.sql.SQLException;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = "/applicationContext.xml")
 public class UserDaoTest {
+
+    @Autowired
+    private ApplicationContext context;
+
+    @Autowired
     private UserDao dao;
     private User user1;
     private User user2;
 
     @Before
     public void setUp() {
-        ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
-        this.dao = context.getBean("userDao", UserDao.class);
+        System.out.println(this.context); // 세번의 테스트에서 전부 같은 레퍼런스를 가진다.
+        System.out.println(this); // 세번의 테스트에서 전부 다른 레퍼런스를 가진다 (메서드별로 테스트객체가 생성되기 때문!)
 
         this.user1 = new User("ididid", "운가용", "sleep");
         this.user2 = new User("IDID99", "로지지징", "gohome");
@@ -44,8 +54,6 @@ public class UserDaoTest {
 
     @Test
     public void count() throws SQLException, ClassNotFoundException {
-        ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
-
         UserDao dao = context.getBean("userDao", UserDao.class);
         User user1 = new User("1111", "홍홍홍", "hongzzi");
         User user2 = new User("2222", "vivian", "vivivivivi");

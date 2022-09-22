@@ -18,5 +18,6 @@
     <orderEntry type="library" name="com.springsource.org.apache.commons.logging-1.1.1" level="project" />
     <orderEntry type="library" name="springframework.spring.jdbc" level="project" />
     <orderEntry type="library" name="junit" level="project" />
+    <orderEntry type="library" name="springframework.spring.test" level="project" />
   </component>
 </module>
