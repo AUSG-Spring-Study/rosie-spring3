@@ -1,24 +1,31 @@
 package springbook.user.dao;
 
+import org.junit.Test;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
 import springbook.user.domain.User;
 
 import java.sql.SQLException;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
 public class UserDaoTest {
-    public static void main(String[] args) throws ClassNotFoundException, SQLException {
-//        ApplicationContext context = new AnnotationConfigApplicationContext(DaoFactory.class);
+    @Test // Junit에게 테스트용 메소드임을 알려준다.
+    public void addAndGet() throws SQLException, ClassNotFoundException { // JUnit 테스트 메소드는 반드시 public으로 선언돼야한다.
         ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
-        UserDao dao = context.getBean("userDao", UserDao.class); // 인자: 빈의 이름, 클래스
 
-        /* 만약 클래스를 다르게 생성해서 빈으로 적용하는 메서드가 있다면 이렇게 할 수 있겠지
-        @Configuration은 specialUserDao라는 메서드를 갖게 한다
-        UserDao dao = context.getBean("specialUserDao", UserDao.class);
-        * */
+        UserDao dao = context.getBean("userDao", UserDao.class);
+        User user = new User();
+        user.setId("random~");
+        user.setName("운가용");
+        user.setPassword("wannasleep");
 
-        User user = dao.get("rosie");
-        System.out.println(user.getId() + " 조회 성공"); // rosie 조회 성공
+        dao.add(user);
+
+        User user2 = dao.get(user.getId());
+
+        assertThat(user2.getName(), is(user.getName()));
+        assertThat(user2.getPassword(), is(user.getPassword()));
     }
 }
