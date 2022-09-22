@@ -6,10 +6,13 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import springbook.user.domain.User;
 
+import javax.sql.DataSource;
 import java.sql.SQLException;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -17,6 +20,7 @@ import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "/applicationContext.xml")
+@DirtiesContext
 public class UserDaoTest {
 
     @Autowired
@@ -29,11 +33,11 @@ public class UserDaoTest {
 
     @Before
     public void setUp() {
-        System.out.println(this.context); // 세번의 테스트에서 전부 같은 레퍼런스를 가진다.
-        System.out.println(this); // 세번의 테스트에서 전부 다른 레퍼런스를 가진다 (메서드별로 테스트객체가 생성되기 때문!)
-
         this.user1 = new User("ididid", "운가용", "sleep");
         this.user2 = new User("IDID99", "로지지징", "gohome");
+
+        DataSource dataSource = new SingleConnectionDataSource("jdbc:mysql://localhost/testdb", "root", "rkdudmysql4_", true);
+        dao.setDataSource(dataSource);
     }
 
     @Test // Junit에게 테스트용 메소드임을 알려준다.
