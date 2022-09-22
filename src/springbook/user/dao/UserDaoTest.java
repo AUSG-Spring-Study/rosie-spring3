@@ -1,5 +1,6 @@
 package springbook.user.dao;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
@@ -12,18 +13,23 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class UserDaoTest {
+    private UserDao dao;
+    private User user1;
+    private User user2;
+
+    @Before
+    public void setUp() {
+        ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
+        this.dao = context.getBean("userDao", UserDao.class);
+
+        this.user1 = new User("ididid", "운가용", "sleep");
+        this.user2 = new User("IDID99", "로지지징", "gohome");
+    }
+
     @Test // Junit에게 테스트용 메소드임을 알려준다.
     public void addAndGet() throws SQLException, ClassNotFoundException { // JUnit 테스트 메소드는 반드시 public으로 선언돼야한다.
-        ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
-
-        UserDao dao = context.getBean("userDao", UserDao.class);
-
         dao.deleteAll();
         assertThat(dao.getCount(), is(0));
-
-        User user1 = new User("ididid", "운가용", "sleep");
-        User user2 = new User("IDID99", "로지지징", "gohome");
-
         dao.add(user1);
         dao.add(user2);
 
@@ -61,9 +67,6 @@ public class UserDaoTest {
 
     @Test(expected = EmptyResultDataAccessException.class)
     public void getUserFailure() throws SQLException, ClassNotFoundException {
-        ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
-
-        UserDao dao = context.getBean("userDao", UserDao.class);
         dao.deleteAll();
         assertThat(dao.getCount(), is(0));
 
