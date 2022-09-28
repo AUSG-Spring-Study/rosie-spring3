@@ -60,9 +60,13 @@ public class UserDao {
 
 
     public void deleteAll() throws SQLException {
+        executeSQL("delete from users");
+    }
+
+    public void executeSQL(String sql) throws SQLException {
         this.jdbcContext.workWithStatementStrategy(new StatementStrategy() {
             public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
-                PreparedStatement ps = c.prepareStatement("delete from users");
+                PreparedStatement ps = c.prepareStatement(sql);
                 return ps;
             }
         });
