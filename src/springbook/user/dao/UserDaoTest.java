@@ -18,7 +18,7 @@ public class UserDaoTest {
 
     @Before
     public void setUp() {
-        dao = new UserDao();
+        dao = new UserDaoDeleteAll();
         dao.setDataSource(new SingleConnectionDataSource("jdbc:mysql://localhost/testdb", "root", "rkdudmysql4_", true));
         this.user1 = new User("ididid", "운가용", "sleep");
         this.user2 = new User("IDID99", "로지지징", "gohome");
