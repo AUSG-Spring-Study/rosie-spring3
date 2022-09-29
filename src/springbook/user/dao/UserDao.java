@@ -1,6 +1,8 @@
 package springbook.user.dao;
 
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
 import springbook.user.domain.User;
 
 import javax.sql.DataSource;
@@ -11,26 +13,16 @@ import java.sql.SQLException;
 
 public class UserDao {
     private DataSource dataSource;
-    private JdbcContext jdbcContext;
+    private JdbcTemplate jdbcTemplate;
 
     public void setDataSource(DataSource dataSource) {
-        JdbcContext jdbcContext = new JdbcContext();
-        jdbcContext.setDataSource(dataSource);
-        this.jdbcContext = jdbcContext;
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.dataSource = dataSource;
     }
 
     public void add(final User user) throws SQLException {
-        this.jdbcContext.workWithStatementStrategy(new StatementStrategy() {
-            public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
-                PreparedStatement ps = c.prepareStatement("insert into users(id, name, password) values (?, ?, ?)");
-                ps.setString(1, user.getId());
-                ps.setString(2, user.getName());
-                ps.setString(3, user.getPassword());
-
-                return ps;
-            }
-        });
+        this.jdbcTemplate.update("insert into users(id, name, password) values(?, ? , ?)",
+                user.getId(), user.getName(), user.getPassword());
     }
 
 
@@ -60,7 +52,15 @@ public class UserDao {
 
 
     public void deleteAll() throws SQLException {
-        this.jdbcContext.executeSQL("delete from users");
+        this.jdbcTemplate.update(new PreparedStatementCreator() {
+            @Override
+            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+                return con.prepareStatement("delete from users");
+            }
+        });
+
+//        미리 준비된 콜백을 만들어서 템플릿을 호출하는 것까지 한번에 해주는 메서드가 존재한다.
+//        this.jdbcTemplate.update("delete from users");
     }
 
     public int getCount() throws SQLException {
