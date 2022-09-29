@@ -1,8 +1,10 @@
 package springbook.user.dao;
 
-import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowMapper;
 import springbook.user.domain.User;
 
 import javax.sql.DataSource;
@@ -10,6 +12,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 public class UserDao {
     private DataSource dataSource;
@@ -27,27 +30,29 @@ public class UserDao {
 
 
     public User get(String id) throws SQLException {
-        Connection c = dataSource.getConnection();
-        PreparedStatement ps = c.prepareStatement("select * from users where id = ?");
-        ps.setString(1, id);
+        return this.jdbcTemplate.queryForObject("select * from users where id = ?", new Object[]{id}, new RowMapper<User>() {
+            @Override
+            public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+                User user = new User();
+                user.setId(rs.getString("id"));
+                user.setName(rs.getString("name"));
+                user.setPassword(rs.getString("password"));
+                return user;
+            }
+        });
+    }
 
-        ResultSet rs = ps.executeQuery();
-        User user = null;
-
-        if (rs.next()) {
-            user = new User();
-            user.setId(rs.getString("id"));
-            user.setName(rs.getString("name"));
-            user.setPassword(rs.getString("password"));
-        }
-
-        rs.close();
-        ps.close();
-        c.close();
-
-        if (user == null) throw new EmptyResultDataAccessException(1);
-
-        return user;
+    public List<User> getAll() {
+        return this.jdbcTemplate.query("select * from users order by id", new RowMapper<User>() {
+            @Override
+            public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+                User user = new User();
+                user.setId(rs.getString("id"));
+                user.setName(rs.getString("name"));
+                user.setPassword(rs.getString("password"));
+                return user;
+            }
+        });
     }
 
 
@@ -64,19 +69,20 @@ public class UserDao {
     }
 
     public int getCount() throws SQLException {
-
-        Connection c = dataSource.getConnection();
-
-        PreparedStatement ps = c.prepareStatement("select count(*) from users");
-
-        ResultSet rs = ps.executeQuery();
-        rs.next();
-        int count = rs.getInt(1);
-
-        rs.close();
-        ps.close();
-        c.close();
-
-        return count;
+        // 원래 getCount() 메소드에 있던 코드 중에서 변하는 부분만 콜백으로 만들어져서 제공된다고 생각하면 이해하기 쉽다.
+        return this.jdbcTemplate.query(new PreparedStatementCreator() {
+            @Override
+            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+                return con.prepareStatement("select count(*) from users");
+            }
+        }, new ResultSetExtractor<Integer>() {
+            @Override
+            public Integer extractData(ResultSet rs) throws SQLException, DataAccessException {
+                rs.next();
+                return rs.getInt(1);
+            }
+        });
+//        이렇게도 할 수 있다.
+//        return this.jdbcTemplate.queryForObject("select count(*) from users", Integer.class);
     }
 }
