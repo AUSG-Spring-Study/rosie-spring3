@@ -2,18 +2,31 @@ package springbook.user.dao;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
+import org.springframework.jdbc.support.SQLExceptionTranslator;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import springbook.user.domain.User;
 
+import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = "/test-applicationContext.xml")
 public class UserDaoTest {
+    @Autowired
     private UserDao dao;
+    @Autowired
+    private DataSource dataSource;
     private User user1;
     private User user2;
 
@@ -21,8 +34,6 @@ public class UserDaoTest {
 
     @Before
     public void setUp() {
-        dao = new UserDao();
-        dao.setDataSource(new SingleConnectionDataSource("jdbc:mysql://localhost/testdb", "root", "rkdudmysql4_", true));
         this.user1 = new User("aaaa", "운가용", "sleep");
         this.user2 = new User("aaab", "로지지징", "gohome");
         this.user3 = new User("aaac", "메롱", "iiii");
@@ -98,6 +109,38 @@ public class UserDaoTest {
         checkSameUser(user3, users3.get(2));
     }
 
+    @Test(expected = DataAccessException.class)
+    public void duplicateKeyThrowsDataAccessException() {
+        dao.deleteAll();
+
+        dao.add(user1);
+        dao.add(user1);
+    }
+
+    @Test(expected = DuplicateKeyException.class)
+    public void duplicateKeyThrowsDuplicateKeyException() {
+        dao.deleteAll();
+
+        dao.add(user1);
+        dao.add(user1);
+    }
+
+    @Test
+    public void sqlExceptionTranslate() {
+        dao.deleteAll();
+        try {
+            dao.add(user1);
+            dao.add(user1);
+        } catch (DuplicateKeyException e) {
+            SQLException sqlEx = (SQLException) e.getRootCause();
+
+            // SQLExceptionTranslator는 `스프링`의 예외 전환 인터페이스!
+            SQLExceptionTranslator set = new SQLErrorCodeSQLExceptionTranslator(this.dataSource);
+
+            // 이제 예외 전환 API를 적용했을 때 DuplicateKeyException이 만들어지는지 보면된다.
+            assertThat(set.translate(null, null, sqlEx), is(DuplicateKeyException.class));
+        }
+    }
     private void checkSameUser(User user1, User user2) {
         assertThat(user1.getId(), is(user2.getId()));
         assertThat(user1.getName(), is(user2.getName()));
