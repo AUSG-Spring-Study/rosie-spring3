@@ -9,8 +9,8 @@ import javax.sql.DataSource;
 @Configuration
 public class DaoFactory {
     @Bean
-    public UserDao userDao() { // 메서드의 이름이 빈의 이름이 된다.
-        UserDao userDao = new UserDao();
+    public UserDaoJdbc userDao() { // 메서드의 이름이 빈의 이름이 된다.
+        UserDaoJdbc userDao = new UserDaoJdbc();
         userDao.setDataSource(dataSource());
         return userDao;
     }
