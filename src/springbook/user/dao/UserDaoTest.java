@@ -11,6 +11,7 @@ import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
 import org.springframework.jdbc.support.SQLExceptionTranslator;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import springbook.user.domain.Level;
 import springbook.user.domain.User;
 
 import javax.sql.DataSource;
@@ -34,9 +35,9 @@ public class UserDaoTest {
 
     @Before
     public void setUp() {
-        this.user1 = new User("aaaa", "운가용", "sleep");
-        this.user2 = new User("aaab", "로지지징", "gohome");
-        this.user3 = new User("aaac", "메롱", "iiii");
+        this.user1 = new User("aaaa", "운가용", "sleep", Level.BASIC, 1, 0);
+        this.user2 = new User("aaab", "로지지징", "gohome", Level.SILVER, 55, 10);
+        this.user3 = new User("aaac", "메롱", "iiii", Level.GOLD, 100, 40);
     }
 
     @Test // Junit에게 테스트용 메소드임을 알려준다.
@@ -47,19 +48,14 @@ public class UserDaoTest {
         dao.add(user2);
 
         User userget1 = dao.get(user1.getId());
-        assertThat(userget1.getName(), is(user1.getName()));
-        assertThat(userget1.getPassword(), is(user1.getPassword()));
+        checkSameUser(userget1, user1);
 
         User userget2 = dao.get(user2.getId());
-        assertThat(userget2.getName(), is(user2.getName()));
-        assertThat(userget2.getPassword(), is(user2.getPassword()));
+        checkSameUser(userget2, user2);
     }
 
     @Test
-    public void count() throws SQLException, ClassNotFoundException {
-        User user1 = new User("1111", "홍홍홍", "hongzzi");
-        User user2 = new User("2222", "vivian", "vivivivivi");
-        User user3 = new User("33333", "matcha", "jmt");
+    public void count() {
 
         dao.deleteAll();
 
@@ -84,7 +80,7 @@ public class UserDaoTest {
     }
 
     @Test
-    public void getAll() throws SQLException {
+    public void getAll() {
         dao.deleteAll();
 
         List<User> user0 = dao.getAll();
@@ -141,9 +137,38 @@ public class UserDaoTest {
             assertThat(set.translate(null, null, sqlEx), is(DuplicateKeyException.class));
         }
     }
+
+    @Test
+    public void update()
+    {
+        dao.deleteAll();
+        dao.add(user1);
+
+        /**
+         * 만약 유저가 하나 뿐이라면 where절이 없더라도 테스트는 통과할 것이다
+         * 원하는 유저 외의 정보는 변하지 않았음을 검증하도록한다.
+         */
+        dao.add(user2);
+
+        user1.setName("파스쿠찌");
+        user1.setPassword("springno6");
+        user1.setLevel(Level.GOLD);
+        user1.setLogin(1000);
+        user1.setRecommend(999);
+        dao.update(user1);
+
+        User user1update = dao.get(user1.getId());
+        checkSameUser(user1, user1update);
+        User user2same = dao.get(user2.getId());
+        checkSameUser(user2, user2same);
+    }
+
     private void checkSameUser(User user1, User user2) {
         assertThat(user1.getId(), is(user2.getId()));
         assertThat(user1.getName(), is(user2.getName()));
         assertThat(user1.getPassword(), is(user2.getPassword()));
+        assertThat(user1.getLevel(), is(user2.getLevel()));
+        assertThat(user1.getLogin(), is(user2.getLogin()));
+        assertThat(user1.getRecommend(), is(user2.getRecommend()));
     }
 }

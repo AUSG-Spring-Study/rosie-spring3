@@ -13,6 +13,12 @@
         <property name="username" value="root"/>
         <property name="password" value="rkdudmysql4_"/>
     </bean>
+    <bean id="userLevelPolicy" class="springbook.user.service.UserLevelUpgradePolicyImpl">
+    </bean>
+    <bean id="userService" class="springbook.user.service.UserService">
+        <property name="userDao" ref="userDao" />
+        <property name="userLevelUpgradePolicy" ref="userLevelPolicy"/>
+    </bean>
     <bean id="userDao" class="springbook.user.dao.UserDaoJdbc">
         <property name="dataSource" ref="dataSource"/>
     </bean>
