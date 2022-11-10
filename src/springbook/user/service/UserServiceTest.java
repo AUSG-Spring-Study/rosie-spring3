@@ -1,5 +1,13 @@
 package springbook.user.service;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static springbook.user.service.UserLevelUpgradePolicyImpl.MIN_LOGCOUNT_FOR_SILVER;
+import static springbook.user.service.UserLevelUpgradePolicyImpl.MIN_RECCOMENT_FOR_GOLD;
+
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,17 +18,27 @@ import springbook.user.dao.UserDao;
 import springbook.user.domain.Level;
 import springbook.user.domain.User;
 
-import java.util.Arrays;
-import java.util.List;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static springbook.user.service.UserLevelUpgradePolicyImpl.MIN_LOGCOUNT_FOR_SILVER;
-import static springbook.user.service.UserLevelUpgradePolicyImpl.MIN_RECCOMENT_FOR_GOLD;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "/test-applicationContext.xml")
 public class UserServiceTest {
+    static class TestUserService extends UserService {
+        private String id;
+
+        private TestUserService(String id) {
+            this.id = id;
+        }
+
+        protected void upgradeLevel(User user) {
+            if (user.getId().equals(this.id)) {
+                throw new TestUserServiceException();
+            }
+            super.upgradeLevel(user);
+        }
+    }
+
+    static class TestUserServiceException extends RuntimeException {
+    }
+
     @Autowired
     UserService userService;
 
@@ -43,7 +61,9 @@ public class UserServiceTest {
     @Test
     public void upgradeLevels() {
         userDao.deleteAll();
-        for (User user : users) userDao.add(user);
+        for (User user : users) {
+            userDao.add(user);
+        }
 
         userService.upgradeLevels();
 
@@ -82,4 +102,21 @@ public class UserServiceTest {
         }
     }
 
+    @Test
+    public void upgradeAllOrNothing() {
+        // user fixture 사용
+        UserService testUserService = new TestUserService(users.get(3).getId());
+        testUserService.setUserDao(this.userDao); // userDao를 수동 DI해줌
+        userDao.deleteAll();
+        for (User user : users) {
+            userDao.add(user);
+        }
+
+        try {
+            testUserService.upgradeLevels();
+            fail("TetUserSericeException expected");
+        } catch (TestUserServiceException e) {
+        }
+        checkLevelUpgraded(users.get(1), false);
+    }
 }
