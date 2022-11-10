@@ -8,13 +8,13 @@ import static springbook.user.service.UserLevelUpgradePolicyImpl.MIN_RECCOMENT_F
 
 import java.util.Arrays;
 import java.util.List;
-import javax.sql.DataSource;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.PlatformTransactionManager;
 import springbook.user.dao.UserDao;
 import springbook.user.domain.Level;
 import springbook.user.domain.User;
@@ -51,7 +51,7 @@ public class UserServiceTest {
     UserLevelUpgradePolicy userLevelUpgradePolicy;
 
     @Autowired
-    DataSource dataSource;
+    PlatformTransactionManager transactionManager;
 
     List<User> users;
 
@@ -115,8 +115,8 @@ public class UserServiceTest {
         // user fixture 사용
         TestUserService testUserService = new TestUserService(users.get(3).getId());
         testUserService.setUserDao(this.userDao); // userDao를 수동 DI해줌
-        testUserService.setDataSource(this.dataSource);
         testUserService.setUserLevelUpgradePolicy(this.userLevelUpgradePolicy);
+        testUserService.setTransactionManager(transactionManager);
         userDao.deleteAll();
         for (User user : users) {
             userDao.add(user);
