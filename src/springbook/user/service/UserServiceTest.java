@@ -8,6 +8,7 @@ import static springbook.user.service.UserLevelUpgradePolicyImpl.MIN_RECCOMENT_F
 
 import java.util.Arrays;
 import java.util.List;
+import javax.sql.DataSource;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,6 +29,7 @@ public class UserServiceTest {
             this.id = id;
         }
 
+        @Override
         protected void upgradeLevel(User user) {
             if (user.getId().equals(this.id)) {
                 throw new TestUserServiceException();
@@ -45,6 +47,12 @@ public class UserServiceTest {
     @Autowired
     UserDao userDao;
 
+    @Autowired
+    UserLevelUpgradePolicy userLevelUpgradePolicy;
+
+    @Autowired
+    DataSource dataSource;
+
     List<User> users;
 
     @Before
@@ -59,7 +67,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void upgradeLevels() {
+    public void upgradeLevels() throws Exception {
         userDao.deleteAll();
         for (User user : users) {
             userDao.add(user);
@@ -103,15 +111,16 @@ public class UserServiceTest {
     }
 
     @Test
-    public void upgradeAllOrNothing() {
+    public void upgradeAllOrNothing() throws Exception {
         // user fixture 사용
-        UserService testUserService = new TestUserService(users.get(3).getId());
+        TestUserService testUserService = new TestUserService(users.get(3).getId());
         testUserService.setUserDao(this.userDao); // userDao를 수동 DI해줌
+        testUserService.setDataSource(this.dataSource);
+        testUserService.setUserLevelUpgradePolicy(this.userLevelUpgradePolicy);
         userDao.deleteAll();
         for (User user : users) {
             userDao.add(user);
         }
-
         try {
             testUserService.upgradeLevels();
             fail("TetUserSericeException expected");
