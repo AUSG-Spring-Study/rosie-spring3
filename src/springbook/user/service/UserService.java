@@ -32,7 +32,7 @@ public class UserService {
         }
     }
 
-    private void upgradeLevel(User user) {
+    protected void upgradeLevel(User user) {
         if (userLevelUpgradePolicy.canUpgradeLevel(user)) {
             userLevelUpgradePolicy.upgradeLevel(user);
             userDao.update(user);
