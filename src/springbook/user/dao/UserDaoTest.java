@@ -1,5 +1,11 @@
 package springbook.user.dao;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
+import java.sql.SQLException;
+import java.util.List;
+import javax.sql.DataSource;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,13 +19,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import springbook.user.domain.Level;
 import springbook.user.domain.User;
-
-import javax.sql.DataSource;
-import java.sql.SQLException;
-import java.util.List;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "/test-applicationContext.xml")
@@ -35,13 +34,13 @@ public class UserDaoTest {
 
     @Before
     public void setUp() {
-        this.user1 = new User("aaaa", "운가용", "sleep", Level.BASIC, 1, 0);
-        this.user2 = new User("aaab", "로지지징", "gohome", Level.SILVER, 55, 10);
-        this.user3 = new User("aaac", "메롱", "iiii", Level.GOLD, 100, 40);
+        this.user1 = new User("aaaa", "운가용", "sleep", "user1@email.com", Level.BASIC, 1, 0);
+        this.user2 = new User("aaab", "로지지징", "gohome", "user2@email.com", Level.SILVER, 55, 10);
+        this.user3 = new User("aaac", "메롱", "iiii", "user3@eamil.com", Level.GOLD, 100, 40);
     }
 
     @Test // Junit에게 테스트용 메소드임을 알려준다.
-    public void addAndGet() throws SQLException, ClassNotFoundException { // JUnit 테스트 메소드는 반드시 public으로 선언돼야한다.
+    public void addAndGet() { // JUnit 테스트 메소드는 반드시 public으로 선언돼야한다.
         dao.deleteAll();
         assertThat(dao.getCount(), is(0));
         dao.add(user1);
@@ -139,8 +138,7 @@ public class UserDaoTest {
     }
 
     @Test
-    public void update()
-    {
+    public void update() {
         dao.deleteAll();
         dao.add(user1);
 
@@ -155,6 +153,7 @@ public class UserDaoTest {
         user1.setLevel(Level.GOLD);
         user1.setLogin(1000);
         user1.setRecommend(999);
+        user1.setEmail("hihi@email.com");
         dao.update(user1);
 
         User user1update = dao.get(user1.getId());
